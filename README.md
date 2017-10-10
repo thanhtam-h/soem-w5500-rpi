@@ -12,3 +12,13 @@ SOFTWARE:
 + Simple Open Source EtherCAT Master (SOEM) version 1.3.0 (https://openethercatsociety.github.io/)
 + SOEM is patched to support xenomai
 + Realtime compatible W5500 driver for SOEM on rpi 
+
+BUILD:
+* You MUST have a raspberri pi (any version) with xenomai 2 patched kernel
+* User space xenomai library is installed at /user/xenomai
+* From your raspberry pi box:
+ 	  git clone git://github.com/thanhtamh/soem-w5500-rpi.git
+	  cd soem-w5500-rpi
+	  chmod +x build.sh
+	  ./build.sh
+
