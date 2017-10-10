@@ -15,7 +15,8 @@ SOFTWARE:
 
 BUILD:
 * You MUST have a raspberri pi (any version) with xenomai 2 patched kernel
-* User space xenomai library is installed at /user/xenomai
+* User space xenomai library is installed at /user/xenomai.
+* For this realtime issue, you can build everything by yourselve or check the prebuilt packages here: https://www.raspberrypi.org/forums/viewtopic.php?f=71&t=74686
 * From your raspberry pi box:
 
  	  git clone git://github.com/thanhtamh/soem-w5500-rpi.git
