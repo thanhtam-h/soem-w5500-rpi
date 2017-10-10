@@ -30,5 +30,6 @@ BUILD:
 TEST:
 
 cd test/slaveInfo/
+
 sudo ./slaveinfo wiz -map
 
