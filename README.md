@@ -29,7 +29,7 @@ BUILD:
 
 TEST:
 
-cd test/slaveInfo/
+	cd test/slaveInfo/
 
-sudo ./slaveinfo wiz -map
+	sudo ./slaveinfo wiz -map
 
