@@ -28,8 +28,15 @@ Opensource realtime EtherCAT master for Raspberry pi
 	> ./build.sh
 	  
 **TEST:**
+* Check information of all slaves on bus:
 
-> cd test/slaveInfo/
+	> cd test/slaveInfo/
+	
+	> sudo ./slaveinfo wiz
+	
+* Check pdo mapping of all slaves on bus:
 
-> sudo ./slaveinfo wiz -map
-
+	> cd test/slaveInfo/
+	
+	> sudo ./slaveinfo wiz -map
+	
