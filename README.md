@@ -19,7 +19,7 @@ Opensource realtime EtherCAT master for Raspberry pi
 * For this realtime issue, you can build everything by yourself or install prebuilt packages here: https://www.raspberrypi.org/forums/viewtopic.php?f=71&t=74686
 * From your raspberry pi box:
 
-	> git clone git://github.com/thanhtamh/soem-w5500-rpi.git
+	> git clone -b rpi01-xenomai-2 git://github.com/thanhtamh/soem-w5500-rpi.git 
 	
 	> cd soem-w5500-rpi
 	
