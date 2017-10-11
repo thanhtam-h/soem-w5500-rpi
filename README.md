@@ -20,12 +20,16 @@ Opensource realtime EtherCAT master for Raspberry pi
 * From your raspberry pi box:
 
 	> git clone git://github.com/thanhtamh/soem-w5500-rpi.git
+	
 	> cd soem-w5500-rpi
+	
 	> chmod +x build.sh
+	
 	> ./build.sh
 	  
 **TEST:**
 
-	> cd test/slaveInfo/
-	> sudo ./slaveinfo wiz -map
+> cd test/slaveInfo/
+
+> sudo ./slaveinfo wiz -map
 
