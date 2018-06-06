@@ -5,7 +5,7 @@ If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, t
 
 
 **HARDWARE:**
-+ Raspberry pi (rpi) any version, this branch is for rpi 2&3
++ Raspberry pi (rpi) any version
 + Wiznet W5500 Ethernet chip with SPI interface
 
 **SOFTWARE:**
