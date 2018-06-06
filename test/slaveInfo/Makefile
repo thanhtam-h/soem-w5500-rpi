@@ -11,6 +11,7 @@ CC = gcc
 # define any compile-time flags
 skin = alchemy
 CFLAGS := $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --cflags)
+LDLIBS := $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --ldflags)
 
 #SOEM EtherCAT
 CFLAGS += -I../../soem 
@@ -29,8 +30,7 @@ LDLIBS +=-lsoem
 LDLIBS +=-losal
 LDLIBS +=-loshw
 LDLIBS +=-lwiznet_drv
-LDLIBS += $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --ldflags)
-	
+
 # define the C source files
 SRCS = slaveinfo.c
 
@@ -59,6 +59,7 @@ all:    $(MAIN)
 
 $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS) $(LDLIBS)
+#	$(CC) -o $@ $< $(CFLAGS) $(LDFLAGS)
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
