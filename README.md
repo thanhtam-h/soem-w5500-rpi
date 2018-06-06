@@ -1,8 +1,10 @@
 # soem-w5500-rpi
 Opensource realtime EtherCAT master for Raspberry pi 
 
+All guides are available at http://www.simplerobot.net/
+
 **HARDWARE:**
-+ Raspberry pi (rpi) any version, this branch is for rpi 2&3
++ Raspberry pi 2&3
 + Wiznet W5500 Ethernet chip with SPI interface
 
 **SOFTWARE:**
@@ -18,24 +20,19 @@ Opensource realtime EtherCAT master for Raspberry pi
 * Check this repository for guide and prebuilt xenomai 3 kernel: https://github.com/thanhtam-h/rpi23-4.9.80-xeno3 
 * From your raspberry pi box:
 
-	> git clone -b rpi23-xenomai-3 git://github.com/thanhtamh/soem-w5500-rpi.git
-	
-	> cd soem-w5500-rpi
-	
-	> chmod +x *.sh
-	
-	> ./build.sh
-	  
+      git clone -b rpi23-xenomai-3 git://github.com/thanhtamh/soem-w5500-rpi.git
+      cd soem-w5500-rpi
+      chmod +x *.sh
+      ./build.sh
+        
 **TEST:**
 * Check information of all slaves on bus:
 
-	> cd test/slaveInfo/
-	
-	> sudo ./slaveinfo wiz
+      cd test/slaveInfo/
+      sudo ./slaveinfo wiz
 	
 * Check pdo mapping of all slaves on bus:
 
-	> cd test/slaveInfo/
-	
-	> sudo ./slaveinfo wiz -map
+      cd test/slaveInfo/
+      sudo ./slaveinfo wiz -map
 	
