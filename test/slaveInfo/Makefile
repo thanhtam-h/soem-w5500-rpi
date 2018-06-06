@@ -9,8 +9,9 @@
 CC = gcc
 
 # define any compile-time flags
-XENOCONFIG:=/usr/xenomai/bin/xeno-config
-CFLAGS=$(shell $(XENOCONFIG) --skin=native --cflags) $(MY_CFLAGS)
+skin = alchemy
+CFLAGS := $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --cflags)
+
 #SOEM EtherCAT
 CFLAGS += -I../../soem 
 CFLAGS += -I../../osal
@@ -22,15 +23,14 @@ CFLAGS += -O3 -Wall -g
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
 
-LDLIBS=$(shell $(XENOCONFIG) --skin=native --ldflags) \
-	$(shell $(XENOCONFIG) --skin=rtdm --ldflags)
 #SOEM EtherCAT
-LDLIBS+= -L../../lib
+LDLIBS += -L../../lib
 LDLIBS +=-lsoem
 LDLIBS +=-losal
 LDLIBS +=-loshw
 LDLIBS +=-lwiznet_drv
-
+LDLIBS += $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --ldflags)
+	
 # define the C source files
 SRCS = slaveinfo.c
 

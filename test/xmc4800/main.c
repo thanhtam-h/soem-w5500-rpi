@@ -329,7 +329,6 @@ int main(int argc, char *argv[])
 
     printf("SOEM (Simple Open EtherCAT Master)\nSimple test\n");
 
-    rt_print_auto_init(1);
 	mlockall(MCL_CURRENT | MCL_FUTURE);
 
 	cycle_ns=1000000; // nanosecond

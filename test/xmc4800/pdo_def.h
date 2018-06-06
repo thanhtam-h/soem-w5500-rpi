@@ -15,12 +15,13 @@
 #include <math.h>
 
 #include <sys/mman.h>
-#include <native/task.h>
-#include <native/timer.h>
-#include <native/mutex.h>
-#include <native/pipe.h>
-#include <rtdk.h>	
-#include <native/mutex.h>
+
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
+#include <alchemy/sem.h>
+//#include <rtdm/testing.h>
+#include <boilerplate/trace.h>
+#include <xenomai/init.h>
 
 #include "ethercattype.h"
 #include "nicdrv.h"

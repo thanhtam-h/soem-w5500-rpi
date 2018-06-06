@@ -26,8 +26,13 @@
 #include <unistd.h>
 #include <osal.h>
 
-#include <native/timer.h>
-#include <native/task.h>
+//Xenomai-3
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
+#include <alchemy/sem.h>
+#include <rtdm/testing.h>
+#include <boilerplate/trace.h>
+#include <xenomai/init.h>
 
 #ifndef USECS_PER_SEC
 #define USECS_PER_SEC     1000000

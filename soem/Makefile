@@ -24,7 +24,7 @@ INCLUDES += -I../soem
 #   their path using -Lpath, something like:
 LFLAGS =
 
-AFLAGS = crus
+AFLAGS = cr
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 

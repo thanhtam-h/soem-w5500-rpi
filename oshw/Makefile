@@ -19,7 +19,7 @@ INCLUDES += -I/usr/xenomai/include
 INCLUDES += -I../osal
 INCLUDES += -I../soem
 
-AFLAGS = crus
+AFLAGS = cr
 
 
 # define the C source files
