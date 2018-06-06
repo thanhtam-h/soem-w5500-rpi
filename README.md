@@ -1,7 +1,8 @@
 # soem-w5500-rpi
 Opensource realtime EtherCAT master for Raspberry pi 
 
-All guides are available at http://www.simplerobot.net/
+If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, this is the only place you have it. All guides are available at http://www.simplerobot.net/
+
 
 **HARDWARE:**
 + Raspberry pi (rpi) any version, this branch is for rpi 2&3
