@@ -13,18 +13,10 @@ Opensource realtime EtherCAT master for Raspberry pi
 + Realtime compatible W5500 driver for SOEM on rpi 
 
 **BUILD:**
-* You MUST have a raspberri pi (rpi 2&3) with xenomai 3 patched kernel
-* User space xenomai library is installed at /user/xenomai
-* Check this repository for guide and prebuilt xenomai 3 kernel: https://github.com/thanhtam-h/rpi23-4.9.80-xeno3 
-* From your raspberry pi box:
 
-	> git clone -b rpi23-xenomai-3 git://github.com/thanhtamh/soem-w5500-rpi.git
-	
-	> cd soem-w5500-rpi
-	
-	> chmod +x *.sh
-	
-	> ./build.sh
+DO NOT use master branch, select a working branch according to your raspberry pi and kernel version (or xenomai version).
+For example, with Rapsberry pi 2&3, Xenomai 3, move to this branch: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-xenomai-3
+
 	  
 **TEST:**
 * Check information of all slaves on bus:
