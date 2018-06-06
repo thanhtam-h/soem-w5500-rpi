@@ -1,6 +1,8 @@
 # soem-w5500-rpi
 Opensource realtime EtherCAT master for Raspberry pi 
 
+All guides are available at http://www.simplerobot.net/
+
 **HARDWARE:**
 + Raspberry pi 2&3
 + Wiznet W5500 Ethernet chip with SPI interface
