@@ -14,20 +14,18 @@ Opensource realtime EtherCAT master for Raspberry pi
 
 **BUILD:**
 
-DO NOT use master branch, select a working branch according to your raspberry pi and kernel version (or xenomai version).
+**DO NOT** use master branch, select a working branch according to your raspberry pi and kernel version (or xenomai version).
+
 For example, with Rapsberry pi 2&3, Xenomai 3, move to this branch: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-xenomai-3
 
 	  
 **TEST:**
 * Check information of all slaves on bus:
 
-	> cd test/slaveInfo/
-	
-	> sudo ./slaveinfo wiz
+      cd test/slaveInfo/
+      sudo ./slaveinfo wiz
 	
 * Check pdo mapping of all slaves on bus:
 
-	> cd test/slaveInfo/
-	
-	> sudo ./slaveinfo wiz -map
-	
+      cd test/slaveInfo/
+      sudo ./slaveinfo wiz -map
