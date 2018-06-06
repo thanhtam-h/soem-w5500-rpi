@@ -11,7 +11,7 @@ CC = gcc
 AR = ar
 
 # define any compile-time flags
-CFLAGS = -g -O3 -ffunction-sections
+CFLAGS = -g -O0 -ffunction-sections
 
 # define any directories containing header files other than /usr/include
 #

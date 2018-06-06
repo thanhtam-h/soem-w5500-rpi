@@ -14,6 +14,25 @@
  #include <stdlib.h>
 #include <signal.h>
 
+#include <sys/mman.h>
+
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
+#include <alchemy/sem.h>
+//#include <rtdm/testing.h>
+#include <boilerplate/trace.h>
+#include <xenomai/init.h>
+
+#include "ethercattype.h"
+#include "nicdrv.h"
+#include "ethercatbase.h"
+#include "ethercatmain.h"
+#include "ethercatdc.h"
+#include "ethercatcoe.h"
+#include "ethercatfoe.h"
+#include "ethercatconfig.h"
+#include "ethercatprint.h"
+
 #include "pdo_def.h"
 
 #define NSEC_PER_SEC 			1000000000
