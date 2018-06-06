@@ -1,6 +1,8 @@
 # soem-w5500-rpi
 Opensource realtime EtherCAT master for Raspberry pi 
 
+All guides are available at http://www.simplerobot.net/
+
 **HARDWARE:**
 + Raspberry pi (rpi) any version, this branch is for rpi 2&3
 + Wiznet W5500 Ethernet chip with SPI interface
@@ -16,7 +18,7 @@ Opensource realtime EtherCAT master for Raspberry pi
 
 **DO NOT** use master branch, select a working branch according to your raspberry pi and kernel version (or xenomai version).
 
-For example, with Rapsberry pi 2&3, Xenomai 3, move to this branch: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-xenomai-3
+For example, for Rapsberry pi 2&3 and xenomai 3, move to this branch: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-xenomai-3
 
 	  
 **TEST:**
