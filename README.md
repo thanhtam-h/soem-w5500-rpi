@@ -1,7 +1,7 @@
 # soem-w5500-rpi
 Opensource realtime EtherCAT master for Raspberry pi 
 
-If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, this is the only place you have it. All guides are available at http://www.simplerobot.net/
+If you are looking for a **hard-realtime EtherCAT Master** solution for Raspberry pi, this is the only place you have it. All guides are available at http://www.simplerobot.net/
 
 
 **HARDWARE:**
@@ -10,7 +10,7 @@ If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, t
 
 **SOFTWARE:**
 + Raspbian or Raspbian lite OS (https://www.raspberrypi.org/downloads/)
-+ Patched kernel with xenomai 3.x (for xenomai 2, we have different build) 
++ Patched kernel with xenomai 2.x or 3.x
 + Simple Open Source EtherCAT Master (SOEM) version 1.3.0 (https://openethercatsociety.github.io/)
 + SOEM is patched to support xenomai
 + Realtime compatible W5500 driver for SOEM on rpi 
