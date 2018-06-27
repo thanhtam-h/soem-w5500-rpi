@@ -16,7 +16,7 @@ If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, t
 
 **BUILD:**
 * You MUST have a raspberri pi (any version) with xenomai 2 patched kernel
-* User space xenomai library is installed at /user/xenomai
+* User space xenomai library is installed at /usr/xenomai
 * For this realtime issue, you can build everything by yourself or install prebuilt packages here: https://www.raspberrypi.org/forums/viewtopic.php?f=71&t=74686
 * From your raspberry pi box:
 
