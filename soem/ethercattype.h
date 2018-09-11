@@ -89,7 +89,9 @@ extern "C"
 /** timeout value in us for tx frame to return to rx */
 #define EC_TIMEOUTRET     	2000
 /** timeout value in us for safe data transfer, max. triple retry */
-#define EC_TIMEOUTRET3     (EC_TIMEOUTRET * 10)
+/** EC_TIMEOUTRET3 is used mostly for ecx_config_init, scan slave, sdo configuration,...*/
+/** default is 10 times of EC_TIMEOUTRET (20ms), some slaves like Elmo drives need longer timer for configuration, changed to 200ms*/
+#define EC_TIMEOUTRET3     (EC_TIMEOUTRET * 100)
 /** timeout value in us for return "safe" variant (f.e. wireless) */
 #define EC_TIMEOUTSAFE     20000
 /** timeout value in us for EEPROM access */
