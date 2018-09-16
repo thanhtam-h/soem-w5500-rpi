@@ -9,9 +9,6 @@
 CC = gcc
 
 # define any compile-time flags
-skin = alchemy
-CFLAGS := $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --cflags)
-LDLIBS := $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --ldflags)
 
 #SOEM EtherCAT
 CFLAGS += -I../../soem 
@@ -31,7 +28,8 @@ LDLIBS +=-lsoem
 LDLIBS +=-losal
 LDLIBS +=-loshw
 LDLIBS +=-lwiznet_drv
-
+LDLIBS +=-lrt
+LDLIBS +=-lpthread 
 # define the C source files
 SRCS = main.c
 
@@ -47,7 +45,6 @@ OBJS = $(SRCS:.c=.o)
  
 # define the executable file 
 MAIN = xmc4800
-
 #
 # The following part of the makefile is generic; it can be used to 
 # build any executable just by changing the definitions above and by

@@ -9,8 +9,6 @@
 CC = gcc
 
 # define any compile-time flags
-skin = alchemy
-CFLAGS := $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --cflags)
 
 #SOEM EtherCAT
 CFLAGS += -I../../soem 
@@ -29,7 +27,8 @@ LDLIBS +=-lsoem
 LDLIBS +=-losal
 LDLIBS +=-loshw
 LDLIBS +=-lwiznet_drv
-LDLIBS += $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --ldflags)
+LDLIBS +=-lrt
+LDLIBS +=-lpthread 
 	
 # define the C source files
 SRCS = slaveinfo.c
