@@ -22,6 +22,7 @@ If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, t
       git clone -b rpi23-rt git://github.com/thanhtamh/soem-w5500-rpi.git
       cd soem-w5500-rpi
       chmod +x *.sh
+	  ./clean-all.sh
       ./build.sh
         
 **TEST:**

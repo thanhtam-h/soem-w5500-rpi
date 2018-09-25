@@ -50,26 +50,6 @@ static inline void tsnorm(struct timespec *ts)
    }
 }
 
-pthread_cond_t  cond  = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-
-/* add ns to timespec */
-void add_timespec(struct timespec *ts, int64 addtime)
-{
-   int64 sec, nsec;
-   nsec = addtime % NSEC_PER_SEC;
-   sec = (addtime - nsec) / NSEC_PER_SEC;
-   ts->tv_sec += sec;
-   ts->tv_nsec += nsec;
-   if ( ts->tv_nsec > NSEC_PER_SEC )
-   {
-      nsec = ts->tv_nsec % NSEC_PER_SEC;
-      ts->tv_sec += (ts->tv_nsec - nsec) / NSEC_PER_SEC;
-      ts->tv_nsec = nsec;
-   }
-}
-
-
 
 #define EC_TIMEOUTMON 500
 
@@ -82,7 +62,6 @@ slave_XMC4800_pt	xmc_module_pt[NUMOFXMC];
 unsigned int cycle_ns = 1000000; /* 1 ms */
 
 char IOmap[4096];
-//char IOmap[1024];
 pthread_t thread1;
 int expectedWKC;
 boolean needlf;
@@ -90,7 +69,7 @@ volatile int wkc;
 boolean inOP;
 uint8 currentgroup = 0;
 
-long now, previous;
+long cycle_time=0, cycle_worst_time=0;
 long ethercat_time_send, ethercat_time_read=0;
 long ethercat_time=0, worst_time=0;
 char *ecat_ifname="wiz";
@@ -253,8 +232,13 @@ void demo_run(void *arg)
 {
 	unsigned long led_loop_cnt=0;
 	unsigned long ready_cnt=0;
+	long now, previous, last;
+	long now_sec, previous_sec, last_sec;
+
 	int LED_idx=0;
 	int LED_Step=1;
+	struct timespec   ts;
+    struct timeval    tp;
 	
 	struct sched_param param;
 	param.sched_priority = 90; //set maximum priority
@@ -264,13 +248,6 @@ void demo_run(void *arg)
 		 exit(-1);
 	}
 	
-	struct timespec   ts;
-    struct timeval    tp;
-	long rc;
-    long ht;
-
-	int64 cycletime;
-
 	if (ecat_init()==FALSE)
 	{
 		run =0;
@@ -280,35 +257,39 @@ void demo_run(void *arg)
 
 	usleep(1e3);
 
-   rc =  gettimeofday(&tp, NULL);
-
-    /* Convert from timeval to timespec */
-   ts.tv_sec  = tp.tv_sec;
-   ht = (tp.tv_usec / 1000) + 1; /* round to nearest ms */
-   ts.tv_nsec = ht * 1000000;
-   
-   cycletime = cycle_ns; /* cycletime in ns */
-
+    clock_gettime(0,&ts);
+	last=tp.tv_usec;		//before send-receive ethercat frame
+	last_sec=tp.tv_sec;
+		
 	while (run)
 	{
-
-		add_timespec(&ts, cycletime);
 		/* wait untill next shot */
-		rc = pthread_cond_timedwait(&cond, &mutex, &ts);
-		/* do the stuff */
-
-		rc =  gettimeofday(&tp, NULL);
+	   clock_nanosleep(0, TIMER_ABSTIME, &ts, NULL);
+	   ts.tv_nsec+=cycle_ns;
+	   tsnorm(&ts);
+		  
+		gettimeofday(&tp, NULL);
 		previous=tp.tv_usec;		//before send-receive ethercat frame
+		previous_sec=tp.tv_sec;
+		
+		
 		ec_send_processdata();
 		wkc = ec_receive_processdata(EC_TIMEOUTRET);
 		if (wkc<3*(NUMOFXMC)) recv_fail_cnt++;
-		rc =  gettimeofday(&tp, NULL);
+		gettimeofday(&tp, NULL);
 		now =  tp.tv_usec;			//after send-receive ethercat frame
+		now_sec=tp.tv_sec;
 
-	   ethercat_time = (long) (now - previous);
+	   ethercat_time = (long) (now_sec - previous_sec)*1000000 + (now-previous);
+	   cycle_time = (long) (previous_sec - last_sec)*1000000 + (previous-last);
 	   if (sys_ready)
+	   {
 		   if (worst_time<ethercat_time) worst_time=ethercat_time;
-
+		   if (cycle_worst_time<cycle_time) cycle_worst_time=cycle_time;
+	   }	   
+		last=previous;
+		last_sec=previous_sec;
+	   
 		ready_cnt++;
 		if (ready_cnt>=1000)
 		{
@@ -329,7 +310,6 @@ void demo_run(void *arg)
 			gt+=period;
 		}
 		
-
 	}//while (run)
 
 	//
@@ -396,6 +376,7 @@ void print_run(void *arg)
 			{
 				itime++;
 				printf("Time=%06ld.%01ld, \e[32;1m fail=%ld\e[0m, ecat_T=%ld, maxT=%ld\n", itime/10, itime%10, recv_fail_cnt,  ethercat_time, worst_time);
+				printf("Cycle=%04ld, worst_cycle=%ld\n", cycle_time, cycle_worst_time);
 				for(i=0; i<NUMOFXMC; ++i)
 					printf("XMC#%i: Btn#1-2: %x\t%x\n", i+1, xmc_module_pt[i].ptin_data->ingenbit1, xmc_module_pt[i].ptin_data->ingenbit2);
 				printf("\n");
@@ -414,7 +395,7 @@ void catch_signal(int sig)
 {
 	run=0;
 	usleep(1e6);
-	//exit(1);
+	exit(1);
 }
 
 int main(int argc, char *argv[])
@@ -444,7 +425,6 @@ int main(int argc, char *argv[])
 	{
 		usleep(10000);
 	}
-
 
    printf("End program\n");
    return (0);
