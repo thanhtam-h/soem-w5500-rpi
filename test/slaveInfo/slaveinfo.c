@@ -627,6 +627,7 @@ int main(int argc, char *argv[])
    if (argc > 1)
    {
 	  wiznet_hw_config(16, 1, 1000000); //select SPI-W5500 parameters
+	  //wiznet_hw_config(8, 0, 0); //disable link reset
       if ((argc > 2) && (strncmp(argv[2], "-sdo", sizeof("-sdo")) == 0)) printSDO = TRUE;
       if ((argc > 2) && (strncmp(argv[2], "-map", sizeof("-map")) == 0)) printMAP = TRUE;
       /* start slaveinfo */
