@@ -35,8 +35,3 @@ If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, t
 
       cd test/slaveInfo/
       sudo ./slaveinfo wiz -map
-<<<<<<< HEAD
-	
-=======
-	
->>>>>>> c2a6df7d3c422a09f57521b1b5f20fdb4d18ea9c
