@@ -33,6 +33,7 @@
 #include "ethercatprint.h"
 #include "pdo_def.h"
 #include "ecat_dc.h"
+#include "wiznet_drv.h"
 
 #define NSEC_PER_SEC 			1000000000
 #define EC_TIMEOUTMON 500
@@ -84,7 +85,9 @@ boolean ecat_init(void)
     inOP = FALSE;
 
     rt_printf("Starting simple test\n");
-
+	
+	wiznet_hw_config(16, 1, 1000000); //select SPI-W5500 parameters, before ecat_init
+	
     if (ec_init(ecat_ifname))
     {
       rt_printf("ec_init on %s succeeded.\n", ecat_ifname); //ifname

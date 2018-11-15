@@ -15,6 +15,7 @@
 #include <signal.h>
 
 #include "pdo_def.h"
+#include "wiznet_drv.h"
 
 #define NSEC_PER_SEC 			1000000000
 #define EC_TIMEOUTMON 500
@@ -67,7 +68,9 @@ boolean ecat_init(void)
     inOP = FALSE;
 
     rt_printf("Starting simple test\n");
-
+	
+	wiznet_hw_config(16, 1, 1000000); //select SPI-W5500 parameters, before ecat_init
+	
     if (ec_init(ecat_ifname))
     {
       rt_printf("ec_init on %s succeeded.\n", ecat_ifname); //ifname
@@ -335,7 +338,6 @@ int main(int argc, char *argv[])
 	period=((double) cycle_ns)/((double) NSEC_PER_SEC);	//period in second unit
 
 	printf("use default adapter %s\n", ecat_ifname);
-
 
   	rt_task_create(&demo_task, "SOEM_demo_task", 0, 90, 0 );
 	rt_task_create(&print_task, "ec_printing", 0, 50, 0 );
