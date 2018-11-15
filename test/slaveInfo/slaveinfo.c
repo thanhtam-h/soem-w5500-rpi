@@ -22,6 +22,7 @@
 #include "ethercatcoe.h"
 #include "ethercatdc.h"
 #include "ethercatprint.h"
+#include "wiznet_drv.h"
 
 char IOmap[4096];
 ec_ODlistt ODlist;
@@ -624,7 +625,8 @@ int main(int argc, char *argv[])
    printf("SOEM (Simple Open EtherCAT Master)\nSlaveinfo\n");
    
    if (argc > 1)
-   {      
+   {
+	  wiznet_hw_config(16, 1, 1000000); //select SPI-W5500 parameters
       if ((argc > 2) && (strncmp(argv[2], "-sdo", sizeof("-sdo")) == 0)) printSDO = TRUE;
       if ((argc > 2) && (strncmp(argv[2], "-map", sizeof("-map")) == 0)) printMAP = TRUE;
       /* start slaveinfo */
