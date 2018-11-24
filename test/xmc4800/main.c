@@ -14,8 +14,27 @@
  #include <stdlib.h>
 #include <signal.h>
 
-#include "pdo_def.h"
+#include <sys/mman.h>
+
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
+#include <alchemy/sem.h>
+//#include <rtdm/testing.h>
+#include <boilerplate/trace.h>
+#include <xenomai/init.h>
+
+#include "ethercattype.h"
+#include "nicdrv.h"
+#include "ethercatbase.h"
+#include "ethercatmain.h"
+#include "ethercatdc.h"
+#include "ethercatcoe.h"
+#include "ethercatfoe.h"
+#include "ethercatconfig.h"
+#include "ethercatprint.h"
 #include "wiznet_drv.h"
+
+#include "pdo_def.h"
 
 #define NSEC_PER_SEC 			1000000000
 #define EC_TIMEOUTMON 500
@@ -68,9 +87,7 @@ boolean ecat_init(void)
     inOP = FALSE;
 
     rt_printf("Starting simple test\n");
-	
-	wiznet_hw_config(16, 1, 1000000); //select SPI-W5500 parameters, before ecat_init
-	
+
     if (ec_init(ecat_ifname))
     {
       rt_printf("ec_init on %s succeeded.\n", ecat_ifname); //ifname
@@ -216,6 +233,7 @@ void demo_run(void *arg)
 	int LED_idx=0;
 	int LED_Step=1;
 
+	wiznet_hw_config(8, 1, 1000000); //select SPI-W5500 parameters, before ec_init
 	if (ecat_init()==FALSE)
 	{
 		run =0;
@@ -338,6 +356,7 @@ int main(int argc, char *argv[])
 	period=((double) cycle_ns)/((double) NSEC_PER_SEC);	//period in second unit
 
 	printf("use default adapter %s\n", ecat_ifname);
+
 
   	rt_task_create(&demo_task, "SOEM_demo_task", 0, 90, 0 );
 	rt_task_create(&print_task, "ec_printing", 0, 50, 0 );
