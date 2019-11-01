@@ -25,6 +25,8 @@ If you are looking for a **hard-realtime EtherCAT Master** solution for Raspberr
 + Raspberry pi 2,3 + Xenomai 3: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-xenomai-3
 + Raspberry pi 2,3 + Preempt-rt: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-rt
 
++ Raspberry pi 4 + Preempt-rt: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi4-rt
+
 	  
 **TEST:**
 * Check information of all slaves on bus:
