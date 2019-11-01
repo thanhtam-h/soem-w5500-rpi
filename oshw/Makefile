@@ -15,7 +15,6 @@ CFLAGS = -g -O3 -ffunction-sections
 
 # define any directories containing header files other than /usr/include
 #
-INCLUDES += -I/usr/xenomai/include
 INCLUDES += -I../osal
 INCLUDES += -I../soem
 

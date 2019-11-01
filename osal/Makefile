@@ -11,27 +11,22 @@ CC = gcc
 AR = ar
 
 # define any compile-time flags
-skin = alchemy
-CFLAGS := $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --cflags)
-CFLAGS += -g -O3 -ffunction-sections
+CFLAGS += -g -O0 -ffunction-sections
+
+
+INCLUDES=-I./
 
 # define any directories containing header files other than /usr/include
 #
-INCLUDES += -I./
-
 # define library paths in addition to /usr/lib
 #   if I wanted to include libraries not in /usr/lib I'd specify
 #   their path using -Lpath, something like:
-LDLIBS += $(shell /usr/xenomai/bin/xeno-config --skin=$(skin) --ldflags)
-
-AFLAGS = cr
+#LFLAGS = -L/usr/xenomai/lib
+AFLAGS = crus
 
 # define any libraries to link into executable:
 #   if I want to link in libraries (libx.so or libx.a) I use the -llibname 
 #   option, something like (this will link in libmylib.so and libm.so:
-LIBS =-lnative
-LIBS +=-lxenomai
-LIBS +=-lrtdm
 
 # define the C source files
 SRCS = osal.c

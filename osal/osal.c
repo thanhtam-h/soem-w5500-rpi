@@ -17,38 +17,38 @@
  * $Id: osal.c 416 2013-01-08 21:54:25Z smf.arthur $
  *------------------------------------------------------------------------------
  */
-/*
- * Ported to xenomai by Ho Tam, thanhtam.h[at]gmail.com
- */
 
 #include <time.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <osal.h>
 
-//Xenomai-3
-#include <alchemy/task.h>
-#include <alchemy/timer.h>
-#include <alchemy/sem.h>
-#include <rtdm/testing.h>
-#include <boilerplate/trace.h>
-#include <xenomai/init.h>
 
-#ifndef USECS_PER_SEC
 #define USECS_PER_SEC     1000000
-#endif
 
 int osal_usleep (uint32 usec)
 {
-   return rt_task_sleep(usec * 1000);
+   struct timespec ts;
+   ts.tv_sec = usec / USECS_PER_SEC;
+   ts.tv_nsec = (usec % USECS_PER_SEC) * 1000;
+   /* usleep is depricated, use nanosleep instead */
+   return nanosleep(&ts, NULL);
 }
 
 int osal_gettimeofday(struct timeval *tv, struct timezone *tz)
 {
-	uint32_t t_us= (uint32_t) (rt_timer_read()/1000);
-	tv->tv_sec=t_us/USECS_PER_SEC;
-	tv->tv_usec = t_us % USECS_PER_SEC;
-	return 0;
+   struct timespec ts;
+   int return_value;
+   
+   /* Use clock_gettime to prevent possible live-lock.
+    * Gettimeofday uses CLOCK_REALTIME that can get NTP timeadjust.
+    * If this function preempts timeadjust and it uses vpage it live-locks.
+    * Also when using XENOMAI, only clock_gettime is RT safe */
+   return_value = clock_gettime (CLOCK_MONOTONIC, &ts), 0;
+   // return_value = clock_gettime (CLOCK_REALTIME, &ts), 0;
+   tv->tv_sec = ts.tv_sec;
+   tv->tv_usec = ts.tv_nsec / 1000;
+   return return_value;
 }
 
 ec_timet osal_current_time (void)
