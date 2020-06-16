@@ -11,7 +11,7 @@ If you are looking for a **hard-realtime EtherCAT Master** solution for Raspberr
 **SOFTWARE:**
 + Raspbian or Raspbian lite OS (https://www.raspberrypi.org/downloads/)
 + Patched kernel with xenomai 2.x or 3.x, or preempt-rt
-+ Simple Open Source EtherCAT Master (SOEM) version 1.3.0 (https://openethercatsociety.github.io/)
++ Simple Open Source EtherCAT Master (SOEM) (https://openethercatsociety.github.io/)
 + SOEM is patched to support xenomai, preempt-rt
 + Realtime compatible W5500 driver for SOEM on rpi 
 
@@ -26,6 +26,7 @@ If you are looking for a **hard-realtime EtherCAT Master** solution for Raspberr
 + Raspberry pi 2,3 + Preempt-rt: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-rt
 
 + Raspberry pi 4 + Preempt-rt: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi4-rt
++ Raspberry pi 4 + Xenomai 3: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi4-xenomai-3
 
 	  
 **TEST:**
