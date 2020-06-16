@@ -1,46 +1,11 @@
 /*
- * Simple Open EtherCAT Master Library 
- *
- * File    : ethercatbase.c
- * Version : 1.3.0
- * Date    : 24-02-2013
- * Copyright (C) 2005-2013 Speciaal Machinefabriek Ketels v.o.f.
- * Copyright (C) 2005-2013 Arthur Ketels
- * Copyright (C) 2008-2009 TU/e Technische Universiteit Eindhoven 
- *
- * SOEM is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 as published by the Free
- * Software Foundation.
- *
- * SOEM is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * As a special exception, if other files instantiate templates or use macros
- * or inline functions from this file, or you compile this file and link it
- * with other works to produce a work based on this file, this file does not
- * by itself cause the resulting work to be covered by the GNU General Public
- * License. However the source code for this file must still be made available
- * in accordance with section (3) of the GNU General Public License.
- *
- * This exception does not invalidate any other reasons why a work based on
- * this file might be covered by the GNU General Public License.
- *
- * The EtherCAT Technology, the trade name and logo “EtherCAT” are the intellectual
- * property of, and protected by Beckhoff Automation GmbH. You can use SOEM for
- * the sole purpose of creating, using and/or selling or otherwise distributing
- * an EtherCAT network master provided that an EtherCAT Master License is obtained
- * from Beckhoff Automation GmbH.
- *
- * In case you did not receive a copy of the EtherCAT Master License along with
- * SOEM write to Beckhoff Automation GmbH, Eiserstraße 5, D-33415 Verl, Germany
- * (www.beckhoff.com).
+ * Licensed under the GNU General Public License version 2 with exceptions. See
+ * LICENSE file in the project root for full license information
  */
 
 /** \file
  * \brief
- * Base EtherCAT functions. 
+ * Base EtherCAT functions.
  *
  * Setting up a datagram in an ethernet frame.
  * EtherCAT datagram primitives, broadcast, auto increment, configured and
@@ -56,6 +21,37 @@
 #include "ethercattype.h"
 #include "ethercatbase.h"
 
+/** Write data to EtherCAT datagram.
+ *
+ * @param[out] datagramdata   = data part of datagram
+ * @param[in]  com            = command
+ * @param[in]  length         = length of databuffer
+ * @param[in]  data           = databuffer to be copied into datagram
+ */
+static void ecx_writedatagramdata(void *datagramdata, ec_cmdtype com, uint16 length, const void * data)
+{
+   if (length > 0)
+   {
+      switch (com)
+      {
+         case EC_CMD_NOP:
+            /* Fall-through */
+         case EC_CMD_APRD:
+            /* Fall-through */
+         case EC_CMD_FPRD:
+            /* Fall-through */
+         case EC_CMD_BRD:
+            /* Fall-through */
+         case EC_CMD_LRD:
+            /* no data to write. initialise data so frame is in a known state */
+            memset(datagramdata, 0, length);
+            break;
+         default:
+            memcpy(datagramdata, data, length);
+            break;
+      }
+   }
+}
 
 /** Generate and set EtherCAT datagram in a standard ethernet frame.
  *
@@ -80,14 +76,11 @@ int ecx_setupdatagram(ecx_portt *port, void *frame, uint8 com, uint8 idx, uint16
    datagramP = (ec_comt*)&frameP[ETH_HEADERSIZE];
    datagramP->elength = htoes(EC_ECATTYPE + EC_HEADERSIZE + length);
    datagramP->command = com;
-   datagramP->index = idx; 
+   datagramP->index = idx;
    datagramP->ADP = htoes(ADP);
    datagramP->ADO = htoes(ADO);
-   datagramP->dlength = htoes(length); 
-   if (length > 0)
-   {
-      memcpy(&frameP[ETH_HEADERSIZE + EC_HEADERSIZE], data, length);
-   }
+   datagramP->dlength = htoes(length);
+   ecx_writedatagramdata(&frameP[ETH_HEADERSIZE + EC_HEADERSIZE], com, length, data);
    /* set WKC to zero */
    frameP[ETH_HEADERSIZE + EC_HEADERSIZE + length] = 0x00;
    frameP[ETH_HEADERSIZE + EC_HEADERSIZE + length + 1] = 0x00;
@@ -118,7 +111,7 @@ int ecx_adddatagram(ecx_portt *port, void *frame, uint8 com, uint8 idx, boolean 
 
    frameP = frame;
    /* copy previous frame size */
-   prevlength = port->txbuflength[idx]; 
+   prevlength = port->txbuflength[idx];
    datagramP = (ec_comt*)&frameP[ETH_HEADERSIZE];
    /* add new datagram to ethernet frame size */
    datagramP->elength = htoes( etohs(datagramP->elength) + EC_HEADERSIZE + length );
@@ -127,23 +120,20 @@ int ecx_adddatagram(ecx_portt *port, void *frame, uint8 com, uint8 idx, boolean 
    /* set new EtherCAT header position */
    datagramP = (ec_comt*)&frameP[prevlength - EC_ELENGTHSIZE];
    datagramP->command = com;
-   datagramP->index = idx; 
+   datagramP->index = idx;
    datagramP->ADP = htoes(ADP);
    datagramP->ADO = htoes(ADO);
    if (more)
    {
       /* this is not the last datagram to add */
-      datagramP->dlength = htoes(length | EC_DATAGRAMFOLLOWS); 
+      datagramP->dlength = htoes(length | EC_DATAGRAMFOLLOWS);
    }
    else
    {
       /* this is the last datagram in the frame */
-      datagramP->dlength = htoes(length); 
+      datagramP->dlength = htoes(length);
    }
-   if (length > 0)
-   {
-      memcpy(&frameP[prevlength + EC_HEADERSIZE - EC_ELENGTHSIZE], data, length);
-   }   
+   ecx_writedatagramdata(&frameP[prevlength + EC_HEADERSIZE - EC_ELENGTHSIZE], com, length, data);
    /* set WKC to zero */
    frameP[prevlength + EC_HEADERSIZE - EC_ELENGTHSIZE + length] = 0x00;
    frameP[prevlength + EC_HEADERSIZE - EC_ELENGTHSIZE + length + 1] = 0x00;
@@ -152,7 +142,7 @@ int ecx_adddatagram(ecx_portt *port, void *frame, uint8 com, uint8 idx, boolean 
 
    /* return offset to data in rx frame
       14 bytes smaller than tx frame due to stripping of ethernet header */
-   return prevlength + EC_HEADERSIZE - EC_ELENGTHSIZE - ETH_HEADERSIZE;  
+   return prevlength + EC_HEADERSIZE - EC_ELENGTHSIZE - ETH_HEADERSIZE;
 }
 
 /** BRW "broadcast write" primitive. Blocking.
@@ -164,7 +154,7 @@ int ecx_adddatagram(ecx_portt *port, void *frame, uint8 com, uint8 idx, boolean 
  * @param[in] data        = databuffer to be written to slaves
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_BWR (ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    uint8 idx;
@@ -180,7 +170,7 @@ int ecx_BWR (ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
    ecx_setbufstat (port, idx, EC_BUF_EMPTY);
 
    return wkc;
-}   
+}
 
 /** BRD "broadcast read" primitive. Blocking.
  *
@@ -191,7 +181,7 @@ int ecx_BWR (ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
  * @param[out] data       = databuffer to put slave data in
  * @param[in]  timeout    = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_BRD(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    uint8 idx;
@@ -207,23 +197,23 @@ int ecx_BRD(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, 
    {
       /* copy datagram to data buffer */
       memcpy(data, &(port->rxbuf[idx][EC_HEADERSIZE]), length);
-   }   
+   }
    /* clear buffer status */
    ecx_setbufstat(port, idx, EC_BUF_EMPTY);
 
    return wkc;
-}   
+}
 
 /** APRD "auto increment address read" primitive. Blocking.
  *
  * @param[in] port        = port context struct
- * @param[in]  ADP        = Address Position, each slave ++, slave that has 0 excecutes
+ * @param[in]  ADP        = Address Position, each slave ++, slave that has 0 executes
  * @param[in]  ADO        = Address Offset, slave memory address
  * @param[in]  length     = length of databuffer
  * @param[out] data       = databuffer to put slave data in
  * @param[in]  timeout    = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_APRD(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    int wkc;
@@ -251,7 +241,7 @@ int ecx_APRD(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
  * @param[out] data       = databuffer to put slave data in
  * @param[in]  timeout    = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_ARMW(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    int wkc;
@@ -279,7 +269,7 @@ int ecx_ARMW(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
  * @param[out] data       = databuffer to put slave data in
  * @param[in]  timeout    = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_FRMW(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    int wkc;
@@ -304,7 +294,7 @@ int ecx_FRMW(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
  * @param[in] ADO         = Address Offset, slave memory address
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return word data from slave
- */ 
+ */
 uint16 ecx_APRDw(ecx_portt *port, uint16 ADP, uint16 ADO, int timeout)
 {
    uint16 w;
@@ -324,7 +314,7 @@ uint16 ecx_APRDw(ecx_portt *port, uint16 ADP, uint16 ADO, int timeout)
  * @param[out] data       = databuffer to put slave data in
  * @param[in]  timeout    = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_FPRD(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    int wkc;
@@ -349,7 +339,7 @@ int ecx_FPRD(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
  * @param[in] ADO         = Address Offset, slave memory address
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return word data from slave
- */ 
+ */
 uint16 ecx_FPRDw(ecx_portt *port, uint16 ADP, uint16 ADO, int timeout)
 {
    uint16 w;
@@ -368,7 +358,7 @@ uint16 ecx_FPRDw(ecx_portt *port, uint16 ADP, uint16 ADO, int timeout)
  * @param[in] data        = databuffer to write to slave.
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_APWR(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    uint8 idx;
@@ -378,7 +368,7 @@ int ecx_APWR(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
    ecx_setupdatagram(port, &(port->txbuf[idx]), EC_CMD_APWR, idx, ADP, ADO, length, data);
    wkc = ecx_srconfirm(port, idx, timeout);
    ecx_setbufstat(port, idx, EC_BUF_EMPTY);
-   
+
    return wkc;
 }
 
@@ -390,7 +380,7 @@ int ecx_APWR(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
  * @param[in] data        = word data to write to slave.
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_APWRw(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 data, int timeout)
 {
    return ecx_APWR(port, ADP, ADO, sizeof(data), &data, timeout);
@@ -405,7 +395,7 @@ int ecx_APWRw(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 data, int timeout)
  * @param[in] data        = databuffer to write to slave.
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_FPWR(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data, int timeout)
 {
    int wkc;
@@ -427,7 +417,7 @@ int ecx_FPWR(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 length, void *data,
  * @param[in] data        = word to write to slave.
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_FPWRw(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 data, int timeout)
 {
    return ecx_FPWR(port, ADP, ADO, sizeof(data), &data, timeout);
@@ -441,7 +431,7 @@ int ecx_FPWRw(ecx_portt *port, uint16 ADP, uint16 ADO, uint16 data, int timeout)
  * @param[in,out] data    = databuffer to write to and read from slave.
  * @param[in]     timeout = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_LRW(ecx_portt *port, uint32 LogAdr, uint16 length, void *data, int timeout)
 {
    uint8 idx;
@@ -467,7 +457,7 @@ int ecx_LRW(ecx_portt *port, uint32 LogAdr, uint16 length, void *data, int timeo
  * @param[out] data       = databuffer to read from slave.
  * @param[in]  timeout    = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_LRD(ecx_portt *port, uint32 LogAdr, uint16 length, void *data, int timeout)
 {
    uint8 idx;
@@ -493,7 +483,7 @@ int ecx_LRD(ecx_portt *port, uint32 LogAdr, uint16 length, void *data, int timeo
  * @param[in] data        = databuffer to write to slave.
  * @param[in] timeout     = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_LWR(ecx_portt *port, uint32 LogAdr, uint16 length, void *data, int timeout)
 {
    uint8 idx;
@@ -518,7 +508,7 @@ int ecx_LWR(ecx_portt *port, uint32 LogAdr, uint16 length, void *data, int timeo
  * @param[out]    DCtime  = DC time read from reference slave.
  * @param[in]     timeout = timeout in us, standard is EC_TIMEOUTRET
  * @return Workcounter or EC_NOFRAME
- */ 
+ */
 int ecx_LRWDC(ecx_portt *port, uint32 LogAdr, uint16 length, void *data, uint16 DCrs, int64 *DCtime, int timeout)
 {
    uint16 DCtO;

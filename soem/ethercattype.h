@@ -1,53 +1,18 @@
 /*
- * Simple Open EtherCAT Master Library 
- *
- * File    : ethercattype.h
- * Version : 1.3.0
- * Date    : 24-02-2013
- * Copyright (C) 2005-2013 Speciaal Machinefabriek Ketels v.o.f.
- * Copyright (C) 2005-2013 Arthur Ketels
- * Copyright (C) 2008-2009 TU/e Technische Universiteit Eindhoven 
- *
- * SOEM is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 as published by the Free
- * Software Foundation.
- *
- * SOEM is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * As a special exception, if other files instantiate templates or use macros
- * or inline functions from this file, or you compile this file and link it
- * with other works to produce a work based on this file, this file does not
- * by itself cause the resulting work to be covered by the GNU General Public
- * License. However the source code for this file must still be made available
- * in accordance with section (3) of the GNU General Public License.
- *
- * This exception does not invalidate any other reasons why a work based on
- * this file might be covered by the GNU General Public License.
- *
- * The EtherCAT Technology, the trade name and logo EtherCAT are the intellectual
- * property of, and protected by Beckhoff Automation GmbH. You can use SOEM for
- * the sole purpose of creating, using and/or selling or otherwise distributing
- * an EtherCAT network master provided that an EtherCAT Master License is obtained
- * from Beckhoff Automation GmbH.
- *
- * In case you did not receive a copy of the EtherCAT Master License along with
- * SOEM write to Beckhoff Automation GmbH, Eiserstraße 5, D-33415 Verl, Germany
- * (www.beckhoff.com).
+ * Licensed under the GNU General Public License version 2 with exceptions. See
+ * LICENSE file in the project root for full license information
  */
 
 /** \file
- * \brief   
+ * \brief
  * General typedefs and defines for EtherCAT.
  *
- * Defines that could need optimalisation for specific applications
+ * Defines that could need optimisation for specific applications
  * are the EC_TIMEOUTxxx. Assumptions for the standard settings are a
  * standard linux PC or laptop and a wired connection to maximal 100 slaves.
- * For use with wireless connections or lots of slaves the timouts need
+ * For use with wireless connections or lots of slaves the timeouts need
  * increasing. For fast systems running Xenomai and RT-net or alike the
- * timeouts need to be shorter.   
+ * timeouts need to be shorter.
  */
 
 #ifndef _EC_TYPE_H
@@ -58,21 +23,30 @@ extern "C"
 {
 #endif
 
-/** Define Little or Big endian target */
-#define EC_LITTLE_ENDIAN
-
-/** define EC_VER1 if version 1 default context and functions are needed
- * comment if application uses only ecx_ functions and own context */
-#define EC_VER1
-
 #include "osal.h"
 
-/** return value general error */
-#define EC_ERROR           -3
+/** define EC_VER1 if version 1 default context and functions are needed
+ * define EC_VER2 if application uses only ecx_ functions and own context */
+#if !defined(EC_VER1) && !defined(EC_VER2)
+#   define EC_VER1
+#endif
+
+
+/** Define little endian target by default if no endian is set */
+#if !defined(EC_LITTLE_ENDIAN) && !defined(EC_BIG_ENDIAN)
+#   define EC_LITTLE_ENDIAN
+#endif
+
 /** return value no frame returned */
-#define EC_NOFRAME         -1
+#define EC_NOFRAME            -1
 /** return value unknown frame received */
-#define EC_OTHERFRAME      -2
+#define EC_OTHERFRAME         -2
+/** return value general error */
+#define EC_ERROR              -3
+/** return value too many slaves */
+#define EC_SLAVECOUNTEXCEEDED -4
+/** return value request timeout */
+#define EC_TIMEOUT            -5
 /** maximum EtherCAT frame length in bytes */
 #define EC_MAXECATFRAME    1518
 /** maximum EtherCAT LRW frame length in bytes */
@@ -87,11 +61,9 @@ extern "C"
 /** number of frame buffers per channel (tx, rx1 rx2) */
 #define EC_MAXBUF          16
 /** timeout value in us for tx frame to return to rx */
-#define EC_TIMEOUTRET     	2000
+#define EC_TIMEOUTRET      2000
 /** timeout value in us for safe data transfer, max. triple retry */
-/** EC_TIMEOUTRET3 is used mostly for ecx_config_init, scan slave, sdo configuration,...*/
-/** default is 10 times of EC_TIMEOUTRET (20ms), some slaves like Elmo drives need longer timer for configuration, changed to 200ms*/
-#define EC_TIMEOUTRET3     (EC_TIMEOUTRET * 100)
+#define EC_TIMEOUTRET3     (EC_TIMEOUTRET * 3)
 /** timeout value in us for return "safe" variant (f.e. wireless) */
 #define EC_TIMEOUTSAFE     20000
 /** timeout value in us for EEPROM access */
@@ -108,6 +80,8 @@ extern "C"
 #define EC_MAXEEPBUF       EC_MAXEEPBITMAP << 5
 /** default number of retries if wkc <= 0 */
 #define EC_DEFAULTRETRIES  3
+/** default group size in 2^x */
+#define EC_LOGGROUPOFFSET 16
 
 /** definition for frame buffers */
 typedef uint8 ec_bufT[EC_BUFSIZE];
@@ -169,7 +143,7 @@ typedef enum
    EC_ERR_ALREADY_INITIALIZED,
    /** Library not initialized. */
    EC_ERR_NOT_INITIALIZED,
-   /** Timeout occured during execution of the function. */
+   /** Timeout occurred during execution of the function. */
    EC_ERR_TIMEOUT,
    /** No slaves were found. */
    EC_ERR_NO_SLAVES,
@@ -180,12 +154,14 @@ typedef enum
 /** Possible EtherCAT slave states */
 typedef enum
 {
+   /** No valid state. */
+   EC_STATE_NONE           = 0x00,
    /** Init state*/
    EC_STATE_INIT           = 0x01,
    /** Pre-operational. */
    EC_STATE_PRE_OP         = 0x02,
    /** Boot state*/
-   EC_STATE_BOOT            = 0x03,
+   EC_STATE_BOOT           = 0x03,
    /** Safe-operational. */
    EC_STATE_SAFE_OP        = 0x04,
    /** Operational */
@@ -243,7 +219,7 @@ typedef enum
 } ec_datatype;
 
 /** Ethercat command types */
-typedef enum 
+typedef enum
 {
    /** No operation */
    EC_CMD_NOP          = 0x00,
@@ -261,7 +237,7 @@ typedef enum
    EC_CMD_FPRW,
    /** Broadcast Read */
    EC_CMD_BRD,
-   /** Broaddcast Write */
+   /** Broadcast Write */
    EC_CMD_BWR,
    /** Broadcast Read Write */
    EC_CMD_BRW,
@@ -271,15 +247,15 @@ typedef enum
    EC_CMD_LWR,
    /** Logical Memory Read Write */
    EC_CMD_LRW,
-   /** Auto Increment Read Mulitple Write */
+   /** Auto Increment Read Multiple Write */
    EC_CMD_ARMW,
-   /** Configured Read Mulitple Write */
+   /** Configured Read Multiple Write */
    EC_CMD_FRMW
    /** Reserved */
 } ec_cmdtype;
 
 /** Ethercat EEprom command types */
-typedef enum 
+typedef enum
 {
    /** No operation */
    EC_ECMD_NOP         = 0x0000,
@@ -412,7 +388,7 @@ enum
 };
 
 /** Ethercat registers */
-enum 
+enum
 {
    ECT_REG_TYPE        = 0x0000,
    ECT_REG_PORTDES     = 0x0007,
@@ -429,6 +405,12 @@ enum
    ECT_REG_PDICTL      = 0x0140,
    ECT_REG_IRQMASK     = 0x0200,
    ECT_REG_RXERR       = 0x0300,
+   ECT_REG_FRXERR      = 0x0308,
+   ECT_REG_EPUECNT     = 0x030C,
+   ECT_REG_PECNT       = 0x030D,
+   ECT_REG_PECODE      = 0x030E,
+   ECT_REG_LLCNT       = 0x0310,
+   ECT_REG_WDCNT       = 0x0442,
    ECT_REG_EEPCFG      = 0x0500,
    ECT_REG_EEPCTL      = 0x0502,
    ECT_REG_EEPSTAT     = 0x0502,
@@ -479,15 +461,17 @@ enum
 /** Error types */
 typedef enum
 {
-   EC_ERR_TYPE_SDO_ERROR        = 0,
-   EC_ERR_TYPE_EMERGENCY        = 1,
-   EC_ERR_TYPE_PACKET_ERROR     = 3,
-   EC_ERR_TYPE_SDOINFO_ERROR    = 4,
-   EC_ERR_TYPE_FOE_ERROR        = 5,
-   EC_ERR_TYPE_FOE_BUF2SMALL    = 6,
-   EC_ERR_TYPE_FOE_PACKETNUMBER = 7,
-   EC_ERR_TYPE_SOE_ERROR        = 8,
-   EC_ERR_TYPE_MBX_ERROR        = 9
+   EC_ERR_TYPE_SDO_ERROR            = 0,
+   EC_ERR_TYPE_EMERGENCY            = 1,
+   EC_ERR_TYPE_PACKET_ERROR         = 3,
+   EC_ERR_TYPE_SDOINFO_ERROR        = 4,
+   EC_ERR_TYPE_FOE_ERROR            = 5,
+   EC_ERR_TYPE_FOE_BUF2SMALL        = 6,
+   EC_ERR_TYPE_FOE_PACKETNUMBER     = 7,
+   EC_ERR_TYPE_SOE_ERROR            = 8,
+   EC_ERR_TYPE_MBX_ERROR            = 9,
+   EC_ERR_TYPE_FOE_FILE_NOTFOUND    = 10,
+   EC_ERR_TYPE_EOE_INVALID_RX_DATA  = 11
 } ec_err_type;
 
 /** Struct to retrieve errors. */

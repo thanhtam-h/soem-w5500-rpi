@@ -1,41 +1,6 @@
 /*
- * Simple Open EtherCAT Master Library 
- *
- * File    : ethercatprint.c
- * Version : 1.3.0
- * Date    : 24-02-2013
- * Copyright (C) 2005-2013 Speciaal Machinefabriek Ketels v.o.f.
- * Copyright (C) 2005-2013 Arthur Ketels
- * Copyright (C) 2008-2009 TU/e Technische Universiteit Eindhoven 
- *
- * SOEM is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 as published by the Free
- * Software Foundation.
- *
- * SOEM is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * As a special exception, if other files instantiate templates or use macros
- * or inline functions from this file, or you compile this file and link it
- * with other works to produce a work based on this file, this file does not
- * by itself cause the resulting work to be covered by the GNU General Public
- * License. However the source code for this file must still be made available
- * in accordance with section (3) of the GNU General Public License.
- *
- * This exception does not invalidate any other reasons why a work based on
- * this file might be covered by the GNU General Public License.
- *
- * The EtherCAT Technology, the trade name and logo EtherCAT are the intellectual
- * property of, and protected by Beckhoff Automation GmbH. You can use SOEM for
- * the sole purpose of creating, using and/or selling or otherwise distributing
- * an EtherCAT network master provided that an EtherCAT Master License is obtained
- * from Beckhoff Automation GmbH.
- *
- * In case you did not receive a copy of the EtherCAT Master License along with
- * SOEM write to Beckhoff Automation GmbH, Eiserstraße 5, D-33415 Verl, Germany
- * (www.beckhoff.com).
+ * Licensed under the GNU General Public License version 2 with exceptions. See
+ * LICENSE file in the project root for full license information
  */
 
 /** \file
@@ -43,7 +8,7 @@
  * Module to convert EtherCAT errors to readable messages.
  *
  * SDO abort messages and AL status codes are used to relay slave errors to
- * the user application. This module converts the binary codes to readble text.
+ * the user application. This module converts the binary codes to readable text.
  * For the defined error codes see the EtherCAT protocol documentation.
  */
 
@@ -169,8 +134,9 @@ const ec_ALstatuscodelist_t ec_ALstatuscodelist[] = {
    {0x0033 , "DC sync IO error" },
    {0x0034 , "DC sync timeout error" },
    {0x0035 , "DC invalid sync cycle time" },
-   {0x0035 , "DC invalid sync0 cycle time" },
-   {0x0035 , "DC invalid sync1 cycle time" },
+   {0x0036 , "DC invalid sync0 cycle time" },
+   {0x0037 , "DC invalid sync1 cycle time" },
+   {0x0041 , "MBX_AOE" },
    {0x0042 , "MBX_EOE" },
    {0x0043 , "MBX_COE" },
    {0x0044 , "MBX_FOE" },
@@ -238,7 +204,7 @@ const ec_soeerrorlist_t ec_soeerrorlist[] = {
    {0x800A, "No element addressed" },
    {0xffff, "Unknown" }
 };
-   
+
 /** MBX error list definition */
 const ec_mbxerrorlist_t ec_mbxerrorlist[] = {
    {0x0000, "No error" },
@@ -249,7 +215,7 @@ const ec_mbxerrorlist_t ec_mbxerrorlist[] = {
    {0x0005, "Invalid mailbox header"},
    {0x0006, "Length of received mailbox data is too short"},
    {0x0007, "No more memory in slave"},
-   {0x0008, "The lenght of data is inconsistent"},
+   {0x0008, "The length of data is inconsistent"},
    {0xffff, "Unknown"}
 };
 
@@ -258,17 +224,17 @@ const ec_mbxerrorlist_t ec_mbxerrorlist[] = {
  * @param[in] sdoerrorcode   = SDO error code as defined in EtherCAT protocol
  * @return readable string
  */
-char* ec_sdoerror2string( uint32 sdoerrorcode)
+const char* ec_sdoerror2string( uint32 sdoerrorcode)
 {
    int i = 0;
 
-   while ( (ec_sdoerrorlist[i].errorcode != 0xfffffffful) && 
-           (ec_sdoerrorlist[i].errorcode != sdoerrorcode) ) 
+   while ( (ec_sdoerrorlist[i].errorcode != 0xffffffffUL) &&
+           (ec_sdoerrorlist[i].errorcode != sdoerrorcode) )
    {
       i++;
    }
-   
-   return (char*) ec_sdoerrorlist[i].errordescription;
+
+   return ec_sdoerrorlist[i].errordescription;
 }
 
 /** Look up text string that belongs to AL status code.
@@ -280,12 +246,12 @@ char* ec_ALstatuscode2string( uint16 ALstatuscode)
 {
    int i = 0;
 
-   while ( (ec_ALstatuscodelist[i].ALstatuscode != 0xffff) && 
-           (ec_ALstatuscodelist[i].ALstatuscode != ALstatuscode) ) 
+   while ( (ec_ALstatuscodelist[i].ALstatuscode != 0xffff) &&
+           (ec_ALstatuscodelist[i].ALstatuscode != ALstatuscode) )
    {
       i++;
    }
-   
+
    return (char *) ec_ALstatuscodelist[i].ALstatuscodedescription;
 }
 
@@ -298,12 +264,12 @@ char* ec_soeerror2string( uint16 errorcode)
 {
    int i = 0;
 
-   while ( (ec_soeerrorlist[i].errorcode != 0xffff) && 
-           (ec_soeerrorlist[i].errorcode != errorcode) ) 
+   while ( (ec_soeerrorlist[i].errorcode != 0xffff) &&
+           (ec_soeerrorlist[i].errorcode != errorcode) )
    {
       i++;
    }
-   
+
    return (char *) ec_soeerrorlist[i].errordescription;
 }
 
@@ -316,13 +282,70 @@ char* ec_mbxerror2string( uint16 errorcode)
 {
    int i = 0;
 
-   while ( (ec_mbxerrorlist[i].errorcode != 0xffff) && 
-           (ec_mbxerrorlist[i].errorcode != errorcode) ) 
+   while ( (ec_mbxerrorlist[i].errorcode != 0xffff) &&
+           (ec_mbxerrorlist[i].errorcode != errorcode) )
    {
       i++;
    }
-    
+
    return (char *) ec_mbxerrorlist[i].errordescription;
+}
+
+/** Convert an error to text string.
+ *
+ * @param[in] Ec = Struct describing the error.
+ * @return readable string
+ */
+char* ecx_err2string(const ec_errort Ec)
+{
+   char timestr[20];
+   sprintf(timestr, "Time:%12.3f", Ec.Time.sec + (Ec.Time.usec / 1000000.0) );
+   switch (Ec.Etype)
+   {
+      case EC_ERR_TYPE_SDO_ERROR:
+      {
+         sprintf(estring, "%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n",
+                 timestr, Ec.Slave, Ec.Index, Ec.SubIdx, (unsigned)Ec.AbortCode, ec_sdoerror2string(Ec.AbortCode));
+         break;
+      }
+      case EC_ERR_TYPE_EMERGENCY:
+      {
+         sprintf(estring, "%s EMERGENCY slave:%d error:%4.4x\n",
+                 timestr, Ec.Slave, Ec.ErrorCode);
+         break;
+      }
+      case EC_ERR_TYPE_PACKET_ERROR:
+      {
+         sprintf(estring, "%s PACKET slave:%d index:%4.4x.%2.2x error:%d\n",
+                 timestr, Ec.Slave, Ec.Index, Ec.SubIdx, Ec.ErrorCode);
+         break;
+      }
+      case EC_ERR_TYPE_SDOINFO_ERROR:
+      {
+         sprintf(estring, "%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n",
+                 timestr, Ec.Slave, Ec.Index, Ec.SubIdx, (unsigned)Ec.AbortCode, ec_sdoerror2string(Ec.AbortCode));
+         break;
+      }
+      case EC_ERR_TYPE_SOE_ERROR:
+      {
+         sprintf(estring, "%s SoE slave:%d IDN:%4.4x error:%4.4x %s\n",
+                 timestr, Ec.Slave, Ec.Index, (unsigned)Ec.AbortCode, ec_soeerror2string(Ec.ErrorCode));
+         break;
+      }
+      case EC_ERR_TYPE_MBX_ERROR:
+      {
+         sprintf(estring, "%s MBX slave:%d error:%4.4x %s\n",
+                 timestr, Ec.Slave, Ec.ErrorCode, ec_mbxerror2string(Ec.ErrorCode));
+         break;
+      }
+      default:
+      {
+         sprintf(estring, "%s error:%8.8x\n",
+                 timestr, (unsigned)Ec.AbortCode);
+         break;
+      }
+   }
+   return (char*) estring;
 }
 
 /** Look up error in ec_errorlist and convert to text string.
@@ -333,58 +356,12 @@ char* ec_mbxerror2string( uint16 errorcode)
 char* ecx_elist2string(ecx_contextt *context)
 {
    ec_errort Ec;
-   char timestr[20];
-   
+
    if (ecx_poperror(context, &Ec))
    {
-      sprintf(timestr, "Time:%12.3f", Ec.Time.sec + (Ec.Time.usec / 1000000.0) );
-      switch (Ec.Etype)
-      {
-         case EC_ERR_TYPE_SDO_ERROR:
-         {
-            sprintf(estring, "%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n", 
-                    timestr, Ec.Slave, Ec.Index, Ec.SubIdx, Ec.AbortCode, ec_sdoerror2string(Ec.AbortCode));            
-            break;
-         }
-         case EC_ERR_TYPE_EMERGENCY:
-         {   
-            sprintf(estring, "%s EMERGENCY slave:%d error:%4.4x\n", 
-                    timestr, Ec.Slave, Ec.ErrorCode);            
-            break;
-         }
-         case EC_ERR_TYPE_PACKET_ERROR:
-         {
-            sprintf(estring, "%s PACKET slave:%d index:%4.4x.%2.2x error:%d\n", 
-                    timestr, Ec.Slave, Ec.Index, Ec.SubIdx, Ec.ErrorCode);            
-            break;
-         }
-         case EC_ERR_TYPE_SDOINFO_ERROR:
-         {   
-            sprintf(estring, "%s SDO slave:%d index:%4.4x.%2.2x error:%8.8x %s\n", 
-                    timestr, Ec.Slave, Ec.Index, Ec.SubIdx, Ec.AbortCode, ec_sdoerror2string(Ec.AbortCode));            
-            break;
-         }
-         case EC_ERR_TYPE_SOE_ERROR:
-         {   
-            sprintf(estring, "%s SoE slave:%d IDN:%4.4x error:%4.4x %s\n", 
-                    timestr, Ec.Slave, Ec.Index, Ec.AbortCode, ec_soeerror2string(Ec.ErrorCode));            
-            break;
-         }
-         case EC_ERR_TYPE_MBX_ERROR:
-         {
-            sprintf(estring, "%s MBX slave:%d error:%4.4x %s\n", 
-                    timestr, Ec.Slave, Ec.ErrorCode, ec_mbxerror2string(Ec.ErrorCode));             
-            break;
-         }
-         default:
-         {
-            sprintf(estring, "%s error:%8.8x\n", 
-                    timestr, Ec.AbortCode);
-         }
-      }
-      return (char*) estring;
+      return ecx_err2string(Ec);
    }
-   else 
+   else
    {
       return "";
    }

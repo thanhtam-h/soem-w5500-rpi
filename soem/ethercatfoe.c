@@ -1,46 +1,9 @@
 /*
- * Simple Open EtherCAT Master Library 
- *
- * File    : ethercatfoe.c
- * Version : 1.3.0
- * Date    : 24-02-2013
- * Copyright (C) 2005-2013 Speciaal Machinefabriek Ketels v.o.f.
- * Copyright (C) 2005-2013 Arthur Ketels
- * Copyright (C) 2008-2009 TU/e Technische Universiteit Eindhoven 
- *
- * SOEM is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 as published by the Free
- * Software Foundation.
- *
- * SOEM is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * As a special exception, if other files instantiate templates or use macros
- * or inline functions from this file, or you compile this file and link it
- * with other works to produce a work based on this file, this file does not
- * by itself cause the resulting work to be covered by the GNU General Public
- * License. However the source code for this file must still be made available
- * in accordance with section (3) of the GNU General Public License.
- *
- * This exception does not invalidate any other reasons why a work based on
- * this file might be covered by the GNU General Public License.
- *
- * The EtherCAT Technology, the trade name and logo “EtherCAT” are the intellectual
- * property of, and protected by Beckhoff Automation GmbH. You can use SOEM for
- * the sole purpose of creating, using and/or selling or otherwise distributing
- * an EtherCAT network master provided that an EtherCAT Master License is obtained
- * from Beckhoff Automation GmbH.
- *
- * In case you did not receive a copy of the EtherCAT Master License along with
- * SOEM write to Beckhoff Automation GmbH, Eiserstraße 5, D-33415 Verl, Germany
- * (www.beckhoff.com).
- *
- * 14-06-2010 : fixed bug in FOEread() by Torsten Bitterlich
+ * Licensed under the GNU General Public License version 2 with exceptions. See
+ * LICENSE file in the project root for full license information
  */
 
-/** \file 
+/** \file
  * \brief
  * File over EtherCAT (FoE) module.
  *
@@ -68,34 +31,34 @@ typedef struct PACKED
    uint8         OpCode;
    uint8         Reserved;
    union
-   {   
+   {
       uint32        Password;
       uint32        PacketNumber;
       uint32        ErrorCode;
    };
    union
-   {   
+   {
       char          FileName[EC_MAXFOEDATA];
       uint8         Data[EC_MAXFOEDATA];
       char          ErrorText[EC_MAXFOEDATA];
-   };   
+   };
 } ec_FOEt;
 PACKED_END
 
 /** FoE progress hook.
- * 
+ *
  * @param[in]  context        = context struct
  * @param[in]     hook       = Pointer to hook function.
  * @return 1
  */
 int ecx_FOEdefinehook(ecx_contextt *context, void *hook)
 {
-  context->FOEhook = hook; 
+  context->FOEhook = hook;
   return 1;
 }
 
 /** FoE read, blocking.
- * 
+ *
  * @param[in]  context        = context struct
  * @param[in]     slave      = Slave number.
  * @param[in]     filename   = Filename of file to read.
@@ -118,12 +81,12 @@ int ecx_FOEread(ecx_contextt *context, uint16 slave, char *filename, uint32 pass
 
    buffersize = *psize;
    ec_clearmbx(&MbxIn);
-   /* Empty slave out mailbox if something is in. Timout set to 0 */
+   /* Empty slave out mailbox if something is in. Timeout set to 0 */
    wkc = ecx_mbxreceive(context, slave, (ec_mbxbuft *)&MbxIn, 0);
    ec_clearmbx(&MbxOut);
    aFOEp = (ec_FOEt *)&MbxIn;
    FOEp = (ec_FOEt *)&MbxOut;
-   fnsize = strlen(filename);
+   fnsize = (uint16)strlen(filename);
    maxdata = context->slavelist[slave].mbx_l - 12;
    if (fnsize > maxdata)
    {
@@ -145,7 +108,7 @@ int ecx_FOEread(ecx_contextt *context, uint16 slave, char *filename, uint32 pass
    if (wkc > 0) /* succeeded to place mailbox in slave ? */
    {
       do
-      {   
+      {
          worktodo = FALSE;
          /* clean mailboxbuffer */
          ec_clearmbx(&MbxIn);
@@ -167,7 +130,7 @@ int ecx_FOEread(ecx_contextt *context, uint16 slave, char *filename, uint32 pass
                      p = (uint8 *)p + segmentdata;
                      if (segmentdata == maxdata)
                      {
-                        worktodo = TRUE; 
+                        worktodo = TRUE;
                      }
                      FOEp->MbxHeader.length = htoes(0x0006);
                      FOEp->MbxHeader.address = htoes(0x0000);
@@ -181,7 +144,7 @@ int ecx_FOEread(ecx_contextt *context, uint16 slave, char *filename, uint32 pass
                      /* send FoE ack to slave */
                      wkc = ecx_mbxsend(context, slave, (ec_mbxbuft *)&MbxOut, EC_TIMEOUTTXM);
                      if (wkc <= 0)
-                     {   
+                     {
                         worktodo = FALSE;
                      }
                      if (context->FOEhook)
@@ -216,14 +179,14 @@ int ecx_FOEread(ecx_contextt *context, uint16 slave, char *filename, uint32 pass
             }
             *psize = dataread;
          }
-      } while (worktodo);   
+      } while (worktodo);
    }
-   
+
    return wkc;
-}   
+}
 
 /** FoE write, blocking.
- * 
+ *
  * @param[in]  context        = context struct
  * @param[in]  slave      = Slave number.
  * @param[in]  filename   = Filename of file to write.
@@ -246,13 +209,13 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
    int tsize;
 
    ec_clearmbx(&MbxIn);
-   /* Empty slave out mailbox if something is in. Timout set to 0 */
+   /* Empty slave out mailbox if something is in. Timeout set to 0 */
    wkc = ecx_mbxreceive(context, slave, (ec_mbxbuft *)&MbxIn, 0);
    ec_clearmbx(&MbxOut);
    aFOEp = (ec_FOEt *)&MbxIn;
    FOEp = (ec_FOEt *)&MbxOut;
    dofinalzero = FALSE;
-   fnsize = strlen(filename);
+   fnsize = (uint16)strlen(filename);
    maxdata = context->slavelist[slave].mbx_l - 12;
    if (fnsize > maxdata)
    {
@@ -274,7 +237,7 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
    if (wkc > 0) /* succeeded to place mailbox in slave ? */
    {
       do
-      {   
+      {
          worktodo = FALSE;
          /* clean mailboxbuffer */
          ec_clearmbx(&MbxIn);
@@ -303,7 +266,7 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
                         }
                         if(tsize || dofinalzero)
                         {
-                           worktodo = TRUE; 
+                           worktodo = TRUE;
                            dofinalzero = FALSE;
                            segmentdata = tsize;
                            psize -= segmentdata;
@@ -328,7 +291,7 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
                            /* send FoE data to slave */
                            wkc = ecx_mbxsend(context, slave, (ec_mbxbuft *)&MbxOut, EC_TIMEOUTTXM);
                            if (wkc <= 0)
-                           {   
+                           {
                               worktodo = FALSE;
                            }
                         }
@@ -359,13 +322,21 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
                   case ECT_FOE_ERROR:
                   {
                      /* FoE error */
-                     wkc = -EC_ERR_TYPE_FOE_ERROR;
+                     if (aFOEp->ErrorCode == 0x8001)
+                     {
+                        wkc = -EC_ERR_TYPE_FOE_FILE_NOTFOUND;
+                     }
+                     else
+                     {
+                        wkc = -EC_ERR_TYPE_FOE_ERROR;
+                     }
                      break;
                   }
                   default:
                   {
                      /* unexpected mailbox received */
                      wkc = -EC_ERR_TYPE_PACKET_ERROR;
+                     break;
                   }
                }
             }
@@ -375,9 +346,9 @@ int ecx_FOEwrite(ecx_contextt *context, uint16 slave, char *filename, uint32 pas
                wkc = -EC_ERR_TYPE_PACKET_ERROR;
             }
          }
-      } while (worktodo);   
+      } while (worktodo);
    }
-   
+
    return wkc;
 }
 

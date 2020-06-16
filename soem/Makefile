@@ -32,7 +32,8 @@ AFLAGS = cr
 LIBS =
 
 # define the C source files
-SRCS = ethercatbase.c ethercatcoe.c ethercatconfig.c ethercatdc.c ethercatfoe.c ethercatmain.c ethercatprint.c ethercatsoe.c
+SRCS = ethercatbase.c ethercatcoe.c ethercatconfig.c ethercatdc.c ethercateoe.c ethercatfoe.c ethercatmain.c ethercatprint.c ethercatsoe.c
+	
 
 # define the C object files 
 #

@@ -88,8 +88,8 @@ boolean ecat_init(void)
 
     rt_printf("Starting simple test\n");
 	
-	//wiznet_hw_config(8, 1, 1000000); //select SPI-W5500 parameters, before ec_init
-	wiznet_hw_config(8, 0, 0); //31.25 Mhz, don't reset link 
+	//wiznet_hw_config(16, 1, 1000000); //select SPI-W5500 parameters, before ec_init
+	wiznet_hw_config(16, 0, 0); //31.25 Mhz, do not reset link 
 	
     if (ec_init(ecat_ifname))
     {

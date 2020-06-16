@@ -1,42 +1,6 @@
 /*
- * Simple Open EtherCAT Master Library 
- *
- * File    : ethercatsoe.c
- * Version : 1.3.0
- * Date    : 24-02-2013
- * Copyright (C) 2005-2013 Speciaal Machinefabriek Ketels v.o.f.
- * Copyright (C) 2005-2013 Arthur Ketels
- * Copyright (C) 2008-2009 TU/e Technische Universiteit Eindhoven 
- * Thanks to Hidde Verhoef for testing and improving the SoE module
- *
- * SOEM is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License version 2 as published by the Free
- * Software Foundation.
- *
- * SOEM is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- * As a special exception, if other files instantiate templates or use macros
- * or inline functions from this file, or you compile this file and link it
- * with other works to produce a work based on this file, this file does not
- * by itself cause the resulting work to be covered by the GNU General Public
- * License. However the source code for this file must still be made available
- * in accordance with section (3) of the GNU General Public License.
- *
- * This exception does not invalidate any other reasons why a work based on
- * this file might be covered by the GNU General Public License.
- *
- * The EtherCAT Technology, the trade name and logo EtherCAT are the intellectual
- * property of, and protected by Beckhoff Automation GmbH. You can use SOEM for
- * the sole purpose of creating, using and/or selling or otherwise distributing
- * an EtherCAT network master provided that an EtherCAT Master License is obtained
- * from Beckhoff Automation GmbH.
- *
- * In case you did not receive a copy of the EtherCAT Master License along with
- * SOEM write to Beckhoff Automation GmbH, Eiserstraße 5, D-33415 Verl, Germany
- * (www.beckhoff.com).
+ * Licensed under the GNU General Public License version 2 with exceptions. See
+ * LICENSE file in the project root for full license information
  */
 
 /** \file
@@ -53,6 +17,7 @@
 #include "ethercatmain.h"
 #include "ethercatsoe.h"
 
+#define EC_SOE_MAX_DRIVES 8
 
 /** SoE (Servo over EtherCAT) mailbox structure */
 PACKED_BEGIN
@@ -68,7 +33,7 @@ typedef struct PACKED
    {
       uint16     idn;
       uint16     fragmentsleft;
-   };   
+   };
 } ec_SoEt;
 PACKED_END
 
@@ -83,6 +48,7 @@ void ecx_SoEerror(ecx_contextt *context, uint16 Slave, uint16 idn, uint16 Error)
 {
    ec_errort Ec;
 
+   memset(&Ec, 0, sizeof(Ec));
    Ec.Time = osal_current_time();
    Ec.Slave = Slave;
    Ec.Index = idn;
@@ -94,7 +60,7 @@ void ecx_SoEerror(ecx_contextt *context, uint16 Slave, uint16 idn, uint16 Error)
 }
 
 /** SoE read, blocking.
- * 
+ *
  * The IDN object of the selected slave and DriveNo is read. If a response
  * is larger than the mailbox size then the response is segmented. The function
  * will combine all segments and copy them to the parameter buffer.
@@ -102,7 +68,7 @@ void ecx_SoEerror(ecx_contextt *context, uint16 Slave, uint16 idn, uint16 Error)
  * @param[in]  context        = context struct
  * @param[in]  slave         = Slave number
  * @param[in]  driveNo       = Drive number in slave
- * @param[in]  elementflags  = Flags to select what properties of IDN are to be transfered.
+ * @param[in]  elementflags  = Flags to select what properties of IDN are to be transferred.
  * @param[in]  idn           = IDN.
  * @param[in,out] psize      = Size in bytes of parameter buffer, returns bytes read from SoE.
  * @param[out] p             = Pointer to parameter buffer
@@ -149,7 +115,7 @@ int ecx_SoEread(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 elemen
    if (wkc > 0) /* succeeded to place mailbox in slave ? */
    {
       while (NotLast)
-      {   
+      {
          /* clean mailboxbuffer */
          ec_clearmbx(&MbxIn);
          /* read slave response */
@@ -179,14 +145,14 @@ int ecx_SoEread(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 elemen
                   totalsize = *psize;
                   /* copy parameter data in parameter buffer */
                   if (framedatasize > 0) memcpy(bp, mp, framedatasize);
-               }   
+               }
 
-               if (!aSoEp->incomplete)   
+               if (!aSoEp->incomplete)
                {
                   NotLast = FALSE;
                   *psize = totalsize;
-               }   
-            }   
+               }
+            }
             /* other slave response */
             else
             {
@@ -210,21 +176,21 @@ int ecx_SoEread(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 elemen
          {
             NotLast = FALSE;
             ecx_packeterror(context, slave, idn, 0, 4); /* no response */
-         }   
-      }   
+         }
+      }
    }
    return wkc;
 }
 
 /** SoE write, blocking.
- * 
+ *
  * The IDN object of the selected slave and DriveNo is written. If a response
  * is larger than the mailbox size then the response is segmented.
  *
  * @param[in]  context        = context struct
  * @param[in]  slave         = Slave number
  * @param[in]  driveNo       = Drive number in slave
- * @param[in]  elementflags  = Flags to select what properties of IDN are to be transfered.
+ * @param[in]  elementflags  = Flags to select what properties of IDN are to be transferred.
  * @param[in]  idn           = IDN.
  * @param[in]  psize         = Size in bytes of parameter buffer.
  * @param[out] p             = Pointer to parameter buffer
@@ -260,7 +226,7 @@ int ecx_SoEwrite(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 eleme
    maxdata = context->slavelist[slave].mbx_l - sizeof(ec_SoEt);
    NotLast = TRUE;
    while (NotLast)
-   {   
+   {
       framedatasize = psize;
       NotLast = FALSE;
       SoEp->idn = htoes(idn);
@@ -286,7 +252,7 @@ int ecx_SoEwrite(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 eleme
       if (wkc > 0) /* succeeded to place mailbox in slave ? */
       {
          if (!NotLast || !ecx_mbxempty(context, slave, timeout))
-         {   
+         {
             /* clean mailboxbuffer */
             ec_clearmbx(&MbxIn);
             /* read slave response */
@@ -302,7 +268,7 @@ int ecx_SoEwrite(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 eleme
                    (aSoEp->elementflags == elementflags))
                {
                   /* SoE write succeeded */
-               }   
+               }
                /* other slave response */
                else
                {
@@ -324,9 +290,9 @@ int ecx_SoEwrite(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 eleme
             else
             {
                ecx_packeterror(context, slave, idn, 0, 4); /* no response */
-            }   
-         }   
-      }   
+            }
+         }
+      }
    }
    return wkc;
 }
@@ -341,57 +307,61 @@ int ecx_SoEwrite(ecx_contextt *context, uint16 slave, uint8 driveNo, uint8 eleme
  * @param[in]  slave   = Slave number
  * @param[out] Osize   = Size in bits of output mapping (MTD) found
  * @param[out] Isize   = Size in bits of input mapping (AT) found
- * @return >0 if mapping succesful.
+ * @return >0 if mapping successful.
  */
 int ecx_readIDNmap(ecx_contextt *context, uint16 slave, int *Osize, int *Isize)
 {
    int retVal = 0;
    int   wkc;
    int psize;
+   int driveNr;
    uint16 entries, itemcount;
    ec_SoEmappingt     SoEmapping;
    ec_SoEattributet   SoEattribute;
 
    *Isize = 0;
    *Osize = 0;
-   psize = sizeof(SoEmapping);
-   /* read output mapping via SoE */
-   wkc = ecx_SoEread(context, slave, 0, EC_SOE_VALUE_B, EC_IDN_MDTCONFIG, &psize, &SoEmapping, EC_TIMEOUTRXM);
-   if ((wkc > 0) && (psize >= 4) && ((entries = etohs(SoEmapping.currentlength) / 2) > 0) && (entries <= EC_SOE_MAXMAPPING))
+   for(driveNr = 0; driveNr < EC_SOE_MAX_DRIVES; driveNr++)
    {
-      /* command word (uint16) is always mapped but not in list */
-      *Osize = 16; 
-      for (itemcount = 0 ; itemcount < entries ; itemcount++)
+      psize = sizeof(SoEmapping);
+      /* read output mapping via SoE */
+      wkc = ecx_SoEread(context, slave, driveNr, EC_SOE_VALUE_B, EC_IDN_MDTCONFIG, &psize, &SoEmapping, EC_TIMEOUTRXM);
+      if ((wkc > 0) && (psize >= 4) && ((entries = etohs(SoEmapping.currentlength) / 2) > 0) && (entries <= EC_SOE_MAXMAPPING))
       {
-         psize = sizeof(SoEattribute);
-         /* read attribute of each IDN in mapping list */
-         wkc = ecx_SoEread(context, slave, 0, EC_SOE_ATTRIBUTE_B, SoEmapping.idn[itemcount], &psize, &SoEattribute, EC_TIMEOUTRXM);
-         if ((wkc > 0) && (!SoEattribute.list))
+         /* command word (uint16) is always mapped but not in list */
+         *Osize = 16;
+         for (itemcount = 0 ; itemcount < entries ; itemcount++)
          {
-            /* length : 0 = 8bit, 1 = 16bit .... */
-            *Osize += (int)8 << SoEattribute.length;
-         }   
-      }   
-   }   
-   psize = sizeof(SoEmapping);
-   /* read input mapping via SoE */
-   wkc = ecx_SoEread(context, slave, 0, EC_SOE_VALUE_B, EC_IDN_ATCONFIG, &psize, &SoEmapping, EC_TIMEOUTRXM);
-   if ((wkc > 0) && (psize >= 4) && ((entries = etohs(SoEmapping.currentlength) / 2) > 0) && (entries <= EC_SOE_MAXMAPPING))
-   {
-      /* status word (uint16) is always mapped but not in list */
-      *Isize = 16; 
-      for (itemcount = 0 ; itemcount < entries ; itemcount++)
+            psize = sizeof(SoEattribute);
+            /* read attribute of each IDN in mapping list */
+            wkc = ecx_SoEread(context, slave, driveNr, EC_SOE_ATTRIBUTE_B, SoEmapping.idn[itemcount], &psize, &SoEattribute, EC_TIMEOUTRXM);
+            if ((wkc > 0) && (!SoEattribute.list))
+            {
+               /* length : 0 = 8bit, 1 = 16bit .... */
+               *Osize += (int)8 << SoEattribute.length;
+            }
+         }
+      }
+      psize = sizeof(SoEmapping);
+      /* read input mapping via SoE */
+      wkc = ecx_SoEread(context, slave, driveNr, EC_SOE_VALUE_B, EC_IDN_ATCONFIG, &psize, &SoEmapping, EC_TIMEOUTRXM);
+      if ((wkc > 0) && (psize >= 4) && ((entries = etohs(SoEmapping.currentlength) / 2) > 0) && (entries <= EC_SOE_MAXMAPPING))
       {
-         psize = sizeof(SoEattribute);
-         /* read attribute of each IDN in mapping list */
-         wkc = ecx_SoEread(context, slave, 0, EC_SOE_ATTRIBUTE_B, SoEmapping.idn[itemcount], &psize, &SoEattribute, EC_TIMEOUTRXM);
-         if ((wkc > 0) && (!SoEattribute.list))
+         /* status word (uint16) is always mapped but not in list */
+         *Isize = 16;
+         for (itemcount = 0 ; itemcount < entries ; itemcount++)
          {
-            /* length : 0 = 8bit, 1 = 16bit .... */
-            *Isize += (int)8 << SoEattribute.length;
-         }   
-      }   
-   }   
+            psize = sizeof(SoEattribute);
+            /* read attribute of each IDN in mapping list */
+            wkc = ecx_SoEread(context, slave, driveNr, EC_SOE_ATTRIBUTE_B, SoEmapping.idn[itemcount], &psize, &SoEattribute, EC_TIMEOUTRXM);
+            if ((wkc > 0) && (!SoEattribute.list))
+            {
+               /* length : 0 = 8bit, 1 = 16bit .... */
+               *Isize += (int)8 << SoEattribute.length;
+            }
+         }
+      }
+   }
 
    /* found some I/O bits ? */
    if ((*Isize > 0) || (*Osize > 0))

@@ -86,7 +86,7 @@ boolean ecat_init(void)
 
     rt_printf("Starting simple test\n");
 	
-	wiznet_hw_config(16, 1, 1000000); //select SPI-W5500 parameters, before ecat_init
+	wiznet_hw_config(16, 0, 0); //select SPI-W5500 parameters, before ecat_init
 	
     if (ec_init(ecat_ifname))
     {
