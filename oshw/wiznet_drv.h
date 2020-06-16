@@ -14,11 +14,16 @@
 
 /*
  * Configure driver parameters
- * spi_clkDiv:	clock divider nummber for rpi SPI, only three values are accepted:
- 		   08: 	spi speed 31.25 MHz (default)
- 		   16: 	spi speed 15.625 MHz
- 		   32: 	spi speed 7.8125 MHz
-		   other values will be 'rounded' down (e.g. 25->16)
+ * spi_clkDiv:	clock divider nummber for rpi SPI, only 3 value ranges are accepted:
+	* RPI4:
+		spi_clkDiv < 32	: 	spi speed 31.25 MHz on (default)
+ 	32<=spi_clkDiv < 64	: 	spi speed 15.625 MHz 
+	64<=spi_clkDiv 		: 	spi speed 7.8125 MHz
+	
+	* Other RPI versions
+		spi_clkDiv < 16	: 	spi speed 31.25 MHz on (default)
+ 	16<=spi_clkDiv < 32	: 	spi speed 15.625 MHz 
+	32<=spi_clkDiv 		: 	spi speed 7.8125 MHz
 		   
  * startup_rst:	enable W5500 reset at starting up
   		    1: 	enable RST signal (default)
@@ -26,7 +31,7 @@
 		
  * link_wait_us: if RST is enabled, this is waiting time (for slave) after link RESET 
  */
-int wiznet_hw_config(uint32_t spi_clkDiv /*default 8 ~ 31.25 MHz*/, 
+int wiznet_hw_config(uint32_t spi_clkDiv /*default 16 ~ 31.25 MHz*/, 
 					int startup_rst /*default 1 (enable)*/, 
 					uint32_t link_wait_us /*default 1000000 (1s)*/);
 

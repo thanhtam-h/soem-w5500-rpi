@@ -1,33 +1,30 @@
-# soem-w5500-rpi
+# soem-w5500-rpi...RASPBERRY PI 4 + XENOMAI 3
 Opensource realtime EtherCAT master for Raspberry pi 
 
-If you are looking for a **hard-realtime EtherCAT Master** solution for Raspberry pi, this is the only place you have it. All guides are available at http://www.simplerobot.net/
-
+If you are looking for a **hard-realtime EtherCAT** solution for Raspberry pi, this is the only place you have it. All guides are available at http://www.simplerobot.net/
 
 **HARDWARE:**
-+ Raspberry pi (rpi) any version
++ Raspberry pi 4
 + Wiznet W5500 Ethernet chip with SPI interface
 
 **SOFTWARE:**
 + Raspbian or Raspbian lite OS (https://www.raspberrypi.org/downloads/)
-+ Patched kernel with xenomai 2.x or 3.x, or preempt-rt
-+ Simple Open Source EtherCAT Master (SOEM) version 1.3.0 (https://openethercatsociety.github.io/)
-+ SOEM is patched to support xenomai, preempt-rt
++ Patched kernel with xenomai 3.x
++ Simple Open Source EtherCAT Master (SOEM) version 1.4.0 (https://openethercatsociety.github.io/)
++ SOEM is patched to support xenomai
 + Realtime compatible W5500 driver for SOEM on rpi 
 
 **BUILD:**
+* You MUST have a raspberri pi 4 with xenomai 3 patched kernel
+* User space xenomai library is installed at /usr/xenomai
+* Check this repository for guide and prebuilt xenomai 3 kernel: https://github.com/thanhtam-h/rpi4-xeno3
+* From your raspberry pi box:
 
-**DO NOT** use master branch, select a working branch according to your raspberry pi and kernel version (or xenomai version).i.e.:
-
-+ Raspberry pi 0,1 + Xenomai 2: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi01-xenomai-2
-+ Raspberry pi 0,1 + Xenomai 3: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi01-xenomai-3
-+ Raspberry pi 2,3 + Xenomai 2: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-xenomai-2
-+ Raspberry pi 2,3 + Xenomai 3: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-xenomai-3
-+ Raspberry pi 2,3 + Preempt-rt: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi23-rt
-
-+ Raspberry pi 4 + Preempt-rt: https://github.com/thanhtam-h/soem-w5500-rpi/tree/rpi4-rt
-
-	  
+      git clone -b rpi4-xenomai-3 git://github.com/thanhtamh/soem-w5500-rpi.git
+      cd soem-w5500-rpi
+      chmod +x *.sh
+      ./build.sh
+        
 **TEST:**
 * Check information of all slaves on bus:
 
